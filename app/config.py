@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     GITHUB_REDIRECT_URI: str = "http://localhost:8000/auth/github/callback"
     GITHUB_CLIENT_KWARGS: dict = {'scope': 'repo'}
 
-    ACCESS_TOKEN_URL: str = "https://github.com/login/oauth/access_token",
-    AUTHORIZE_URL: str = "https://github.com/login/oauth/authorize",
+    ACCESS_TOKEN_URL: str = "https://github.com/login/oauth/access_token"
+    AUTHORIZE_URL: str = "https://github.com/login/oauth/authorize"
     API_BASE_URL: str = "https://api.github.com/"
 
     SECRET_KEY: str = "your_secret_key_here"
