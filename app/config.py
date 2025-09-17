@@ -1,0 +1,29 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from authlib.integrations.starlette_client import OAuth
+
+class Settings(BaseSettings):
+    GITHUB_CLIENT_ID: str
+    GITHUB_CLIENT_SECRET: str
+    GITHUB_REDIRECT_URI: str = "http://localhost:8000/auth/github/callback"
+    GITHUB_CLIENT_KWARGS: dict = {'scope': 'repo'}
+
+    ACCESS_TOKEN_URL: str = "https://github.com/login/oauth/access_token",
+    AUTHORIZE_URL: str = "https://github.com/login/oauth/authorize",
+    API_BASE_URL: str = "https://api.github.com/"
+
+    SECRET_KEY: str = "your_secret_key_here"
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+settings = Settings()
+
+oauth = OAuth()
+oauth.register(
+    name="github",
+    client_id=settings.GITHUB_CLIENT_ID,
+    client_secret=settings.GITHUB_CLIENT_SECRET,
+    access_token_url=settings.ACCESS_TOKEN_URL,
+    authorize_url=settings.AUTHORIZE_URL,
+    api_base_url=settings.API_BASE_URL
+)
+github = oauth.create_client('github')
