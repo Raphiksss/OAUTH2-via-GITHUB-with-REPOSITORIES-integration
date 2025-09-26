@@ -1,4 +1,0 @@
-fastapi[standard]
-pydantic-settings
-authlib
-itsdangerous

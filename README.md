@@ -1,13 +1,12 @@
 # auth\_via\_github
 
-Приложение на **FastAPI** с авторизацией через **GitHub OAuth**.
+Приложение на **FastAPI** с авторизацией через **GitHub OAuth** и работой с репозиториями.
 
 ---
 
 ## Описание
 
-Это минимальное приложение на FastAPI, которое позволяет пользователям входить через GitHub.
-После авторизации приложение получает данные пользователя с GitHub и возвращает их в виде JSON.
+FULL OAUTH2 AUTHENTICATION VIA GITHUB
 
 ---
 
@@ -31,11 +30,12 @@ SECRET_KEY=YOUR_SECRET_KEY
 
 > **Важно:** `GITHUB_REDIRECT_URI` должен совпадать с `Authorization callback URL` в настройках вашего GitHub OAuth приложения.
 
-3. Поднимите Docker контейнер:
+3. Установите зависимости:
 
 ```bash
-docker compose up --build -d
+poetry install --no-root
 ```
+и поставьте виртуальное окружение
 
 4. Откройте браузер и перейдите по адресу:
 
@@ -62,15 +62,3 @@ auth_via_github/
 └─ README.md
 ```
 
----
-
-## Требования
-
-* Python 3.13+
-* FastAPI
-* Authlib
-* Starlette
-* itsdangerous
-* Docker
-
----
