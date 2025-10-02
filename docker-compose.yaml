@@ -1,13 +1,10 @@
-version: '3.9'
+
+version: "3.9"
 
 services:
-  web:
-    build: .
-    container_name: auth_via_github
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    env_file:
-      - .env
-    volumes:
-      - .:/app
-    restart: unless-stopped
