@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException, Query
 from app.config import github, settings
 import base64
+from app import csrf_util
 router = APIRouter(prefix = "/auth")
 
 req_headers = {
@@ -10,13 +11,23 @@ req_headers = {
 
 @router.get("/github", summary = "Аутентификация по гитхаб")
 async def github_login(request: Request):
+    token = csrf_util.generate_csrf_token()
+    request.session["csrf_token"] = token
+
     redirect_uri = settings.GITHUB_REDIRECT_URI
-    return await github.authorize_redirect(request, redirect_uri)
+    return await github.authorize_redirect(request, redirect_uri, state = token)
 
 @router.get("/github/callback", summary = "Гитхаб редирект")
-async def github_callback(request: Request):
+async def github_callback(request: Request, state: str = Query(...)):
+
+    if not csrf_util.validate_csrf_token(request, state):
+        raise HTTPException(status_code=403, detail="Invalid CSRF token")
+
     token = await github.authorize_access_token(request)
+
     request.session["gh_token"] = token
+    request.session.pop("csrf_token", None)
+
     return {"status": "ok"}
 
 #Что бы название и овнер возврощялись корректно
@@ -36,7 +47,7 @@ async def github_user_repos(request: Request, limit: int|None = Query(None)):
         headers=req_headers,
     )
     if resp.status_code >= 400:
-        raise HTTPException(status_code=resp.status_code, detail=resp.text)
+        raise HTTPException(status_code=resp.status_code, detail="Unhandled error")
     data = resp.json()
     return [{"id": r.get("id"), "name": r.get("name")} for r in data]
 
@@ -65,7 +76,7 @@ async def github_repo_tree_by_id_only_tree(
     if tree_resp.status_code == 404:
         raise HTTPException(status_code=404, detail="Tree not found for given ref")
     if tree_resp.status_code >= 400:
-        raise HTTPException(status_code=tree_resp.status_code, detail=tree_resp.text)
+        raise HTTPException(status_code=tree_resp.status_code, detail="Unhandled error")
 
     tree_json = tree_resp.json()
     entries = tree_json.get("tree", [])
@@ -111,7 +122,7 @@ async def github_repo_file_content_by_id(
     if file_resp.status_code == 404:
         raise HTTPException(status_code=404, detail="File not found or it's a directory")
     if file_resp.status_code >= 400:
-        raise HTTPException(status_code=file_resp.status_code, detail=file_resp.text)
+        raise HTTPException(status_code=file_resp.status_code, detail="Unhandled error")
 
     data = file_resp.json()
     if isinstance(data, list):
